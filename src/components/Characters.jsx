@@ -5,13 +5,21 @@ import {
   CCardImage,
   CCardText,
   CCardTitle,
+  CFormInput,
 } from "@coreui/react";
-import React, { useState, useEffect, useContext, useReducer } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useReducer,
+  useMemo,
+} from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import "../styles/character.css";
 
 const initialState = {
   favorites: [],
+  search: [],
 };
 
 const reducer = (state, action) => {
@@ -21,21 +29,52 @@ const reducer = (state, action) => {
         ...state,
         favorites: [...state.favorites, action.payload],
       };
+    case "SEARCH":
+      return {
+        ...state,
+        search: [action.payload],
+      };
     default:
       return state;
   }
 };
 
 const Characters = ({ darkMode }) => {
+  //State
   const [characters, setCharacters] = useState([]);
   const { darkmode } = useContext(ThemeContext);
-  const [favorites, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [search, setSearch] = useState("");
 
+  // Variable
+  /*  const filterSearch = characters.filter((f) =>
+    f.name.toLowerCase().includes(search.toLowerCase())
+  ); */
+  //using useMemo
+  const filterSearch = useMemo(() => {
+    characters.filter((f) =>
+      f.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [characters, search]);
+  console.log(filterSearch);
+
+  //Functions
   const onClick = (favorite) => {
     dispatch({
       type: "ADD_TO_FAVORITE",
       payload: favorite,
     });
+  };
+
+  const onChange = (e) => {
+    e.preventDefault();
+    setSearch(e.target.value);
+
+    dispatch({
+      type: "SEARCH",
+      payload: filterSearch,
+    });
+    console.log(state);
   };
 
   useEffect(() => {
@@ -46,8 +85,18 @@ const Characters = ({ darkMode }) => {
 
   return (
     <div className="characters">
+      {/* Search */}
+      <CFormInput
+        style={{
+          textAlign: "center",
+          width: "320px",
+        }}
+        placeholder="Search your favorite character 🔎"
+        onChange={(e) => onChange(e)}
+      />
       <div className="favorite">
-        {favorites.favorites.map((favorite) => (
+        {/* Favorite */}
+        {state.favorites.map((favorite) => (
           <CCard
             color={`${darkmode ? "dark" : "light"}`}
             key={favorite.id}
@@ -68,7 +117,7 @@ const Characters = ({ darkMode }) => {
       </div>
 
       <div className="list">
-        {characters.map((character) => (
+        {filterSearch.map((character) => (
           <CCard
             color={`${darkmode ? "dark" : "light"}`}
             key={character.id}
