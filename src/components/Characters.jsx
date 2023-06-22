@@ -14,9 +14,11 @@ import React, {
   useReducer,
   useMemo,
   useRef,
+  useCallback,
 } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import "../styles/character.css";
+import { Seacrh } from "./Seacrh";
 
 const initialState = {
   favorites: [],
@@ -70,7 +72,7 @@ const Characters = () => {
     });
   };
 
-  const onChange = (e) => {
+  /*   const onChange = (e) => {
     e.preventDefault();
     setSearch(searchInput.current.value);
 
@@ -78,8 +80,17 @@ const Characters = () => {
       type: "SEARCH",
       payload: filterSearch,
     });
-    console.log(state);
-  };
+  }; */
+
+  // usando useCallback
+
+  const onChange = useCallback(() => {
+    setSearch(searchInput.current.value);
+    dispatch({
+      type: "SEARCH",
+      payload: filterSearch,
+    });
+  }, []);
 
   useEffect(() => {
     fetch("https://rickandmortyapi.com/api/character")
@@ -90,18 +101,10 @@ const Characters = () => {
   return (
     <div className="characters">
       {/* Search */}
-      <CFormInput
-        style={{
-          textAlign: "center",
-          width: "320px",
-        }}
-        placeholder="Search your favorite character 🔎"
-        onChange={(e) => onChange(e)}
-        value={search}
-        ref={searchInput}
-      />
+      <Seacrh search={search} searchInput={searchInput} onChange={onChange} />
+
+      {/* Favorite */}
       <div className="favorite">
-        {/* Favorite */}
         {state.favorites.map((favorite) => (
           <CCard key={favorite.id} style={{ width: "18rem" }}>
             <CCardImage orientation="top" src={favorite.image} />
