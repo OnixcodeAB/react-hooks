@@ -9,16 +9,18 @@ import {
 } from "@coreui/react";
 import React, {
   useState,
-  useEffect,
   useContext,
   useReducer,
   useMemo,
   useRef,
   useCallback,
 } from "react";
+import { useCharacters } from "../hooks/useCharacters";
 import { ThemeContext } from "../context/ThemeContext";
 import "../styles/character.css";
 import { Seacrh } from "./Seacrh";
+
+const API = "https://rickandmortyapi.com/api/character";
 
 const initialState = {
   favorites: [],
@@ -44,11 +46,13 @@ const reducer = (state, action) => {
 
 const Characters = () => {
   //State
-  const [characters, setCharacters] = useState([]);
+  /*   const [characters, setCharacters] = useState([]); */ // <= delegado a useCharaacters
   const { darkmode } = useContext(ThemeContext);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [search, setSearch] = useState("");
   const searchInput = useRef(null);
+
+  const characters = useCharacters(API);
 
   // Variable
   /*  const filterSearch = characters.filter((f) =>
@@ -92,11 +96,12 @@ const Characters = () => {
     });
   }, []);
 
-  useEffect(() => {
+  // Movido a custom hooks
+  /*   useEffect(() => {
     fetch("https://rickandmortyapi.com/api/character")
       .then((reponse) => reponse.json())
       .then((data) => setCharacters(data.results));
-  }, []);
+  }, []); */
 
   return (
     <div className="characters">
