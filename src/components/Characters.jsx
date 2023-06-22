@@ -13,6 +13,7 @@ import React, {
   useContext,
   useReducer,
   useMemo,
+  useRef,
 } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import "../styles/character.css";
@@ -39,24 +40,27 @@ const reducer = (state, action) => {
   }
 };
 
-const Characters = ({ darkMode }) => {
+const Characters = () => {
   //State
   const [characters, setCharacters] = useState([]);
   const { darkmode } = useContext(ThemeContext);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [search, setSearch] = useState("");
+  const searchInput = useRef(null);
 
   // Variable
   /*  const filterSearch = characters.filter((f) =>
     f.name.toLowerCase().includes(search.toLowerCase())
   ); */
+
   //using useMemo
-  const filterSearch = useMemo(() => {
-    characters.filter((f) =>
-      f.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [characters, search]);
-  console.log(filterSearch);
+  const filterSearch = useMemo(
+    () =>
+      characters.filter((f) =>
+        f.name.toLowerCase().includes(search.toLowerCase())
+      ),
+    [characters, search]
+  );
 
   //Functions
   const onClick = (favorite) => {
@@ -68,7 +72,7 @@ const Characters = ({ darkMode }) => {
 
   const onChange = (e) => {
     e.preventDefault();
-    setSearch(e.target.value);
+    setSearch(searchInput.current.value);
 
     dispatch({
       type: "SEARCH",
@@ -93,15 +97,13 @@ const Characters = ({ darkMode }) => {
         }}
         placeholder="Search your favorite character 🔎"
         onChange={(e) => onChange(e)}
+        value={search}
+        ref={searchInput}
       />
       <div className="favorite">
         {/* Favorite */}
         {state.favorites.map((favorite) => (
-          <CCard
-            color={`${darkmode ? "dark" : "light"}`}
-            key={favorite.id}
-            style={{ width: "18rem" }}
-          >
+          <CCard key={favorite.id} style={{ width: "18rem" }}>
             <CCardImage orientation="top" src={favorite.image} />
             <CCardBody>
               <CCardTitle>{favorite.name}</CCardTitle>
